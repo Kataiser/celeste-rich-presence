@@ -92,6 +92,9 @@ def main():
             print("{:02}:{:02} elapsed".format(int(time_elapsed / 60), round(time_elapsed % 60)))
             print()
 
+            if not os.path.exists('history.txt'):
+                open('history.txt', 'w').close()
+
             activity_str = f'{activity}\n'
             with open('history.txt', 'r') as history_file_r:
                 history = history_file_r.readlines()
