@@ -13,8 +13,8 @@ from discoIPC import ipc
 
 def main():
     chapter_names = ['Prologue', 'Chapter 1: Forsaken City', 'Chapter 2: Old Site', 'Chapter 3: Celestial Resort', 'Chapter 4: Golden Ridge', 'Chapter 5: Mirror Temple',
-                     'Chapter 7: The Summit', 'Epilogue', 'Chapter 8: Core']
-    chapter_pics = ['prologue', 'city', 'site', 'resort', 'golden', 'temple', 'summit', 'epilogue', 'core']
+                     'Chapter 6: Reflection', 'Chapter 7: The Summit', 'Epilogue', 'Chapter 8: Core']
+    chapter_pics = ['prologue', 'city', 'site', 'resort', 'golden', 'temple', 'reflection', 'summit', 'epilogue', 'core']
     sides = {'Normal': 'A-Side', 'BSide': 'B-Side', 'CSide': 'C-Side'}
 
     start_time = int(time.time())
