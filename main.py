@@ -1,7 +1,10 @@
 import os
+import sys
 import time
 from operator import itemgetter
 
+sys.path.append(os.path.abspath(os.path.join('python', 'packages')))
+sys.path.append(os.path.abspath(os.path.join('python')))
 import psutil
 import psutil._exceptions as ps_exceptions
 from bs4 import BeautifulSoup
