@@ -88,7 +88,7 @@ def main():
             activity['assets']['small_text'] = f"{chapter_names[current_area_id]} ({sides[current_area_mode]})"
             activity['assets']['large_text'] = f"Totals: {total_deaths} deaths, {total_berries} strawberries"
 
-            if in_area:
+            if in_area and time.time() - start_time > 15:
                 activity['state'] = f"{sides[current_area_mode]} ({current_area_deaths} deaths)"
             else:
                 activity['state'] = "In menus"
