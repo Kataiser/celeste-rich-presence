@@ -76,6 +76,7 @@ def main():
             current_area_mode = xml_soup.find('LastArea').get('Mode')
             total_deaths = xml_soup.find('TotalDeaths').string
             total_berries = int(xml_soup.find('TotalStrawberries').string)
+            in_area = xml_soup.find('CurrentSession').get('InArea') == 'true'
 
             for area in xml_soup.find_all('AreaStats'):
                 if area.get('ID') == str(current_area_id):
@@ -83,10 +84,14 @@ def main():
                     current_area_deaths = current_area_info.get('Deaths')
 
             activity['details'] = chapter_names[current_area_id]
-            activity['state'] = f"{sides[current_area_mode]} ({current_area_deaths} deaths)"
             activity['assets']['small_image'] = chapter_pics[current_area_id]
             activity['assets']['small_text'] = f"{chapter_names[current_area_id]} ({sides[current_area_mode]})"
             activity['assets']['large_text'] = f"Totals: {total_deaths} deaths, {total_berries} strawberries"
+
+            if in_area:
+                activity['state'] = f"{sides[current_area_mode]} ({current_area_deaths} deaths)"
+            else:
+                activity['state'] = "In menus"
 
             print(activity['details'])
             print(activity['state'])
