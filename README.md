@@ -1,6 +1,6 @@
 [![Github all releases](https://img.shields.io/github/downloads/Kataiser/celeste-rich-presence/total.svg)](https://GitHub.com/Kataiser/celeste-rich-presence/releases/)
 
-# celeste-rich-presence
+# Celeste Rich Presence
 Discord Rich Presence for Celeste (thrown together from an older version of [TF2 Rich Presence](https://github.com/Kataiser/tf2-rich-presence))
 
 ![Screenshot](screenshot.png)
