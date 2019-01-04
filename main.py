@@ -55,11 +55,6 @@ def main():
                 # connects to Discord
                 client = ipc.DiscordIPC('528044034619604992')
                 client.connect()
-
-                # sends first status, starts on main menu
-                # start_time = int(time.time())
-                activity['timestamps']['start'] = start_time
-                client.update_activity(activity)
                 client_connected = True
 
             save_files = []
