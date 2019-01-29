@@ -14,8 +14,8 @@ from discoIPC import ipc
 def main():
     chapter_names = ['Prologue', 'Chapter 1: Forsaken City', 'Chapter 2: Old Site', 'Chapter 3: Celestial Resort', 'Chapter 4: Golden Ridge', 'Chapter 5: Mirror Temple',
                      'Chapter 6: Reflection', 'Chapter 7: The Summit', 'Epilogue', 'Chapter 8: Core']
-    chapter_pics = ['prologue', 'city', 'site', 'resort', 'golden', 'temple', 'reflection', 'summit', 'epilogue', 'core']
-    sides = {'Normal': 'A-Side', 'BSide': 'B-Side', 'CSide': 'C-Side'}
+    chapter_pics = ['intro', 'city', 'site', 'resort', 'golden', 'temple', 'reflection', 'summit', 'intro', 'core']
+    sides = {'Normal': ('A-Side', 'aside'), 'BSide': ('B-Side', 'bside'), 'CSide': ('C-Side', 'cside')}
 
     start_time = int(time.time())
     activity = {'details': 'In menus',  # this is what gets modified and sent to Discord via discoIPC
@@ -28,7 +28,6 @@ def main():
         game_is_running = False
         discord_is_running = False
 
-        # looks through all running processes to look for TF2, Steam, and Discord
         for process in psutil.process_iter():
             if game_is_running and discord_is_running:
                 break
@@ -65,28 +64,42 @@ def main():
             current_save_file_path = sorted(save_files, key=itemgetter(1), reverse=True)[0][0]
 
             with open(current_save_file_path, 'r', errors='replace') as current_save_file:
+                current_save_number = int(current_save_file.name.split('\\')[-1][0]) + 1
                 xml_soup = BeautifulSoup(current_save_file.read(), 'xml')
 
+            save_slot_name = xml_soup.find('Name').string
             current_area_id = int(xml_soup.find('LastArea').get('ID'))
             current_area_mode = xml_soup.find('LastArea').get('Mode')
             total_deaths = xml_soup.find('TotalDeaths').string
             total_berries = int(xml_soup.find('TotalStrawberries').string)
-            in_area = xml_soup.find('CurrentSession').get('InArea') == 'true'
+
+            current_session = xml_soup.find('CurrentSession')
+            if current_session:
+                in_area = current_session.get('InArea') == 'true'
+            else:
+                in_area = True
 
             for area in xml_soup.find_all('AreaStats'):
                 if area.get('ID') == str(current_area_id):
                     current_area_info = area.find_all('AreaModeStats')[list(sides.keys()).index(current_area_mode)]
                     current_area_deaths = current_area_info.get('Deaths')
 
+            if save_slot_name == 'Madeline':
+                save_slot_text = ""
+            else:
+                save_slot_text = f": \"{save_slot_name}\""
+
             activity['details'] = chapter_names[current_area_id]
-            activity['assets']['small_image'] = chapter_pics[current_area_id]
-            activity['assets']['small_text'] = f"{chapter_names[current_area_id]} ({sides[current_area_mode]})"
-            activity['assets']['large_text'] = f"Totals: {total_deaths} deaths, {total_berries} strawberries"
+            # activity['assets']['small_image'] = sides[current_area_mode][1]
+            activity['assets']['small_image'] = ' '
+            activity['assets']['large_image'] = chapter_pics[current_area_id]
+            activity['assets']['small_text'] = f"{chapter_names[current_area_id]} ({sides[current_area_mode][0]})"
+            activity['assets']['large_text'] = f"Totals: {total_deaths} deaths, {total_berries} strawberries (save slot #{current_save_number}{save_slot_text})"
 
             if time.time() - start_time < 15:
                 activity['state'] = "Loading game"
             elif in_area:
-                activity['state'] = f"{sides[current_area_mode]} ({current_area_deaths} deaths)"
+                activity['state'] = f"{sides[current_area_mode][0]} ({current_area_deaths} deaths)"
             else:
                 activity['state'] = "In level select"
 
