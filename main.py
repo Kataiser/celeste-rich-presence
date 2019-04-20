@@ -14,7 +14,7 @@ from discoIPC import ipc
 def main():
     chapter_names = ['Prologue', 'Chapter 1: Forsaken City', 'Chapter 2: Old Site', 'Chapter 3: Celestial Resort', 'Chapter 4: Golden Ridge', 'Chapter 5: Mirror Temple',
                      'Chapter 6: Reflection', 'Chapter 7: The Summit', 'Epilogue', 'Chapter 8: Core']
-    chapter_pics = ['intro', 'city', 'site', 'resort', 'golden', 'temple', 'reflection', 'summit', 'intro', 'core']
+    chapter_pics = ['intro', 'city', 'oldsite', 'resort', 'golden', 'temple', 'reflection', 'summit', 'intro', 'core']
     sides = {'Normal': ('A-Side', 'aside'), 'BSide': ('B-Side', 'bside'), 'CSide': ('C-Side', 'cside')}
 
     start_time = int(time.time())
@@ -38,7 +38,7 @@ def main():
 
                         if p_name == "Celeste.exe":
                             game_location = process.cmdline()[0].replace('Celeste.exe', '')
-                            start_time = process.create_time()
+                            start_time = int(process.create_time())
                             game_is_running = True
                         elif 'Discord' in p_name:
                             discord_is_running = True
@@ -64,8 +64,12 @@ def main():
             current_save_file_path = sorted(save_files, key=itemgetter(1), reverse=True)[0][0]
 
             with open(current_save_file_path, 'r', errors='replace') as current_save_file:
-                current_save_number = int(current_save_file.name.split('\\')[-1][0]) + 1
                 xml_soup = BeautifulSoup(current_save_file.read(), 'xml')
+
+                try:
+                    current_save_number = int(current_save_file.name.split('\\')[-1][0]) + 1
+                except ValueError:
+                    current_save_number = None
 
             save_slot_name = xml_soup.find('Name').string
             current_area_id = int(xml_soup.find('LastArea').get('ID'))
@@ -90,18 +94,23 @@ def main():
                 save_slot_text = f": \"{save_slot_name}\""
 
             activity['details'] = chapter_names[current_area_id]
-            # activity['assets']['small_image'] = sides[current_area_mode][1]
             activity['assets']['small_image'] = ' '
             activity['assets']['large_image'] = chapter_pics[current_area_id]
             activity['assets']['small_text'] = f"{chapter_names[current_area_id]} ({sides[current_area_mode][0]})"
-            activity['assets']['large_text'] = f"Totals: {total_deaths} deaths, {total_berries} strawberries (save slot #{current_save_number}{save_slot_text})"
+            activity['timestamps']['start'] = start_time
 
-            if time.time() - start_time < 15:
-                activity['state'] = "Loading game"
-            elif in_area:
-                activity['state'] = f"{sides[current_area_mode][0]} ({current_area_deaths} deaths)"
+            if not current_save_number and current_save_file_path.endswith('\\debug.celeste'):
+                activity['state'] = "In debug mode"
+                activity['assets']['large_text'] = chapter_names[current_area_id]
             else:
-                activity['state'] = "In level select"
+                activity['assets']['large_text'] = f"Totals: {total_deaths} deaths, {total_berries} strawberries (save slot #{current_save_number}{save_slot_text})"
+
+                if time.time() - start_time < 15:
+                    activity['state'] = "Loading game"
+                elif in_area:
+                    activity['state'] = f"{sides[current_area_mode][0]} ({current_area_deaths} deaths)"
+                else:
+                    activity['state'] = "In level select"
 
             print(activity['details'])
             print(activity['state'])
@@ -139,7 +148,7 @@ def main():
             client_connected = False
 
         # rich presence only updates every 15 seconds, but it listens constantly so sending every 5 seconds is fine
-        time.sleep(5)
+        time.sleep(10)
 
 
 if __name__ == '__main__':
